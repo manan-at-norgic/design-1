@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.bg_clr {
+  background-color: #fffbd9;
+  border-left: 1px solid rgba(0, 0, 0, 0.068);
+}
+
+.img-container {
+  border-radius: 50%;
+}
+
+.fade-in {
+  transition: all 1s ease-in-out;
+  -webkit-animation-name: myanimation;
+          animation-name: myanimation;
+  -webkit-animation-duration: 1.5s;
+          animation-duration: 1.5s;
+}
+
+@-webkit-keyframes myanimation {
+  from {
+    margin-left: -112rem;
+  }
+  to {
+    margin-left: 0rem;
+  }
+}
+
+@keyframes myanimation {
+  from {
+    margin-left: -112rem;
+  }
+  to {
+    margin-left: 0rem;
+  }
+}
+.waviy {
+  position: relative;
+}
+
+.waviy span {
+  position: relative;
+  display: inline-block;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  -webkit-animation: flip 2s;
+          animation: flip 2s;
+  -webkit-animation-iteration-count: 5;
+          animation-iteration-count: 5;
+  -webkit-animation-delay: calc(0.2s * var(--i));
+          animation-delay: calc(0.2s * var(--i));
+}
+
+@-webkit-keyframes flip {
+  0%, 80% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes flip {
+  0%, 80% {
+    transform: rotateY(360deg);
+  }
+}/*# sourceMappingURL=index.css.map */

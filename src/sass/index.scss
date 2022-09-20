@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg_clr {
+  //   background-color: rgb(255, 230, 0, 15%);
+  background-color: #fffbd9;
+  //   background-color: white;
+  border-left: 1px solid rgba(0, 0, 0, 0.068);
+}
+.img-container {
+  border-radius: 50%;
+}
+
+.fade-in {
+  transition: all 1s ease-in-out;
+  animation-name: myanimation;
+  animation-duration: 1.5s;
+}
+
+@keyframes myanimation {
+  from {
+    margin-left: -112rem;
+  }
+  to {
+    margin-left: 0rem;
+  }
+}
+
+// logo animation
+.waviy {
+  position: relative;
+}
+.waviy span {
+  position: relative;
+  display: inline-block;
+  letter-spacing: 2.5px;
+  //   font-size: 40px;
+  //   color: #000;
+  text-transform: uppercase;
+  animation: flip 2s;
+  animation-iteration-count: 5;
+  animation-delay: calc(0.2s * var(--i));
+}
+@keyframes flip {
+  0%,
+  80% {
+    transform: rotateY(360deg);
+  }
+}

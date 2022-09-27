@@ -1,0 +1,15 @@
+.cc_footer {
+  position: relative;
+  height: 18px;
+  background-color: rgba(255, 251, 121, 0.884);
+  font-size: smaller;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-backdrop-filter: blur(15px) saturate(150%);
+          backdrop-filter: blur(15px) saturate(150%);
+}
+.cc_footer div {
+  position: absolute;
+  bottom: 0;
+}/*# sourceMappingURL=ccFooter.css.map */

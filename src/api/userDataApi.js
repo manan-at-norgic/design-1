@@ -6,12 +6,12 @@ import pic5 from "../assets/5.jpg";
 import pic6 from "../assets/6.jpg";
 
 const images = [
-  { pic: pic1, name: "user1" },
-  { pic: pic2, name: "user2" },
-  { pic: pic3, name: "user3" },
-  { pic: pic4, name: "user4" },
-  { pic: pic5, name: "user5" },
-  { pic: pic6, name: "user6" },
+  { pic: pic1, name: "Ali" },
+  { pic: pic2, name: "Umar" },
+  { pic: pic3, name: "Raza" },
+  { pic: pic4, name: "noman" },
+  { pic: pic5, name: "Shahzad" },
+  { pic: pic6, name: "abbas" },
 ];
 
 export default images;

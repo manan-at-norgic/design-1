@@ -1,3 +1,5 @@
+@import url("./ccFooter.css");
+@import url("https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -46,8 +48,8 @@
   text-transform: uppercase;
   -webkit-animation: flip 2s;
           animation: flip 2s;
-  -webkit-animation-iteration-count: 5;
-          animation-iteration-count: 5;
+  -webkit-animation-iteration-count: 3;
+          animation-iteration-count: 3;
   -webkit-animation-delay: calc(0.2s * var(--i));
           animation-delay: calc(0.2s * var(--i));
 }

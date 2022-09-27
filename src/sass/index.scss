@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("./ccFooter.css");
+
+@import url("https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300&display=swap");
+
 .bg_clr {
   //   background-color: rgb(255, 230, 0, 15%);
   background-color: #fffbd9;
@@ -39,7 +43,7 @@
   //   color: #000;
   text-transform: uppercase;
   animation: flip 2s;
-  animation-iteration-count: 5;
+  animation-iteration-count: 3;
   animation-delay: calc(0.2s * var(--i));
 }
 @keyframes flip {

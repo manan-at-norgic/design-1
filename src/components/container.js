@@ -6,9 +6,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const appBackground = {
-  background: "rgb(255,230,0,15%)",
-};
 const Container = ({ setIsLogin }) => {
   const [domainName, setConfig] = useState([]);
   // get name from url
@@ -43,21 +40,14 @@ const Container = ({ setIsLogin }) => {
   return (
     <>
       <motion.div
-        style={appBackground}
-        className=" w-full h-screen"
+        className=" w-full h-screen bg-clr theme-height"
         // initial={{ opacity: 0, y: 0 }}
         // animate={{ opacity: 1, y: -100 }}
         // exit={{ opacity: 0, y: 100 }}
       >
-        <header
-          style={{ background: "rgb(255,250,121,43%)" }}
-          className="font-bold font-averia"
-        >
+        <header className="font-bold font-averia theme-clr">
           <nav className="flex items-center justify-between">
-            <div
-              style={{ background: "#FFFA9E" }}
-              className=" ml-4 m-2  h-10 font-semibold grid place-items-center"
-            >
+            <div className=" ml-4 m-2 theme-clr h-10 font-semibold grid place-items-center">
               <div className="waviy">
                 {domainName.map((elem, idx) => {
                   return (
@@ -73,7 +63,7 @@ const Container = ({ setIsLogin }) => {
               className="m-2 h-10 font-semibold grid place-items-center"
             >
             </div> */}
-            <div style={{ background: "#FFFA9E" }} className="mr-4 flex">
+            <div className="mr-4 flex theme-clr">
               <button>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -116,10 +106,14 @@ const Container = ({ setIsLogin }) => {
         </header>
         <section className="flex justify-center ">
           {/* 25% and 75% width each aside respectively */}
+          {/* left side  */}
           <aside
-            className=" w-1/4 bg-white"
+            className=" w-1/4 -white overflow-scroll scroll-custom"
             style={{ height: "calc(100vh - 56px)" }}
           >
+            <div className="flex justify-end items-center shadow-md cursor-pointer">
+              <span className=" font-bold p-2">+Create Group</span>
+            </div>
             <div className="">
               <UserCard />
             </div>

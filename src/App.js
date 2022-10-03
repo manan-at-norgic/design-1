@@ -11,12 +11,12 @@ const App = () => {
   const location = useLocation();
   useEffect(() => {
     const checkLogin = () => {
-      let token = localStorage.getItem("token");
+      let token = localStorage.getItem("user");
 
-      if (token !== "1234") return navigate("/login");
+      if (!token) return navigate("/login", { replace: true });
 
       setIsLogin(true);
-      navigate("/");
+      navigate("/", { replace: true });
     };
     checkLogin();
   }, [setIsLogin]);
@@ -46,18 +46,9 @@ const App = () => {
             />
           </Routes>
         </AnimatePresence>
-        {isLogin ? (
-          <footer className="cc_footer">
-            <div>&#169; powered by vdotok</div>
-          </footer>
-        ) : (
-          <footer
-            style={{ background: "rgba(0, 0, 0, 0.158)", color: "white  " }}
-            className="cc_footer"
-          >
-            <div>&#169; powered by vdotok</div>
-          </footer>
-        )}
+        <footer className="cc_footer">
+          <div>&#169; powered by vdotok</div>
+        </footer>
       </div>
     </>
   );

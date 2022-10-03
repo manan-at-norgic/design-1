@@ -2,6 +2,9 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Users from "../../api/Users";
+import variables from "../../api/variables";
+
 import "../../sass/login.css";
 
 const animations = {
@@ -9,15 +12,50 @@ const animations = {
   animate: { opacity: 1, x: 0 },
   exit: { opacity: 0, x: -100 },
 };
+
 const Login = ({ setIsLogin }) => {
+  //
+  const [err, setErr] = useState(``);
+  const [user, setUser] = useState({
+    email: "",
+    password: "",
+    project_id: `${variables.projectID}`,
+  });
   const [a, seta] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem("token", "1234");
-    seta(true);
-    setIsLogin(true);
+    if (!e.target[0].value || !e.target[1].value) {
+      setErr("Plz fill all fields properly");
+      return setTimeout(() => {
+        setErr("");
+      }, 5000);
+    }
+
+    let res = await Users.loginIn(user);
+    console.log(res);
+    if (res.data.ref_id) {
+      localStorage.setItem("user", JSON.stringify(res.data));
+      localStorage.setItem("auth_token", res.data.auth_token);
+      seta(true);
+      setIsLogin(true);
+      // return navigate("/");
+    } else {
+      setErr(res.data.message);
+      setIsLogin(false);
+      seta(false);
+      return setTimeout(() => {
+        setErr("");
+      }, 5000);
+    }
+
+    // localStorage.setItem("token", "1234");
+  };
+
+  const onChangeInputs = (e) => {
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
   };
 
   const animationOut = () => {
@@ -25,19 +63,22 @@ const Login = ({ setIsLogin }) => {
     box.classList.add("scale-out-vertical");
   };
 
+  const removeSnack = () => {
+    return setErr("");
+  };
+
   useEffect(() => {
     if (a) {
-      let token = localStorage.getItem("token");
-      if (token) return navigate("/");
+      let token = localStorage.getItem("auth_token");
+      if (token) return navigate("/", { replace: true });
       console.log("hi");
-      seta(false);
+      // seta(false);
     }
   }, [a]);
   return (
     <>
       <form
-        className="flex justify-center items-center"
-        style={{ height: "calc(100vh - 18px)" }}
+        className="flex justify-center items-center wrapper theme-height"
         onSubmit={handleSubmit}
       >
         <motion.div
@@ -47,21 +88,51 @@ const Login = ({ setIsLogin }) => {
           animate="animate"
           exit="exit"
         >
-          <h1>Login</h1>
+          <h1 className="text-2xl font-bold">Login</h1>
 
-          <input type="text" name="" placeholder="Username" />
-          <input type="password" name="" placeholder="Password" />
+          <input
+            onChange={onChangeInputs}
+            type="text"
+            name="email"
+            placeholder="email/username"
+          />
+          <input
+            onChange={onChangeInputs}
+            type="password"
+            name="password"
+            placeholder="Password"
+          />
 
           <input type="submit" name="" value="Login" />
           <Link
-            className=" text-white underline hover:text-blue-700"
+            className=" capitalize font-bold underline"
             onClick={animationOut}
             to="/register"
           >
             register
           </Link>
         </motion.div>
+        <section className="deco">
+          <div className="circle first" aria-hidden="true"></div>
+          <div className="circle second" aria-hidden="true"></div>
+        </section>
       </form>
+      {err !== "" ? (
+        <div
+          onClick={removeSnack}
+          className="m-4 absolute cursor-pointer top-0 right-0 p-4 snack-custom rounded-lg"
+        >
+          <span
+            style={{ padding: "1px 5px", fontFamily: "Arial" }}
+            className="snack-custom-child rounded-full mx-2 font-bold"
+          >
+            x
+          </span>
+          {err}
+        </div>
+      ) : (
+        ""
+      )}
     </>
   );
 };

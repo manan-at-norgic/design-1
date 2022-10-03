@@ -1,7 +1,7 @@
 .cc_footer {
   position: relative;
   height: 18px;
-  background-color: rgba(255, 251, 121, 0.884);
+  background-color: var(--theme-clr);
   font-size: smaller;
   display: flex;
   justify-content: center;

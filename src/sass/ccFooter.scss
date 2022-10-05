@@ -1,0 +1,15 @@
+.cc_footer {
+  position: relative;
+  height: 18px;
+  background-color: var(--theme-clr);
+  font-size: smaller;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(15px) saturate(150%);
+  div {
+    // color: white;
+    position: absolute;
+    bottom: 0;
+  }
+}

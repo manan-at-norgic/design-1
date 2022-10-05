@@ -1,0 +1,220 @@
+:root {
+  --black: black;
+  --white: white;
+  --gray: rgb(175 175 175 / 60%);
+  --contrast-color: #222254;
+  --contrast-ambient-clr: rgb(29 78 216);
+  --theme-clr: #fffa9e;
+  --bg-clr: rgba(255, 230, 0, 0.15);
+  --alert: #c53030;
+}
+
+.text-clr {
+  color: var(--black);
+}
+
+.image__::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid red;
+}
+
+.bg-clr {
+  background-color: var(--bg-clr);
+}
+
+.-white {
+  background-color: var(--white);
+}
+
+.theme-clr {
+  background-color: var(--theme-clr);
+}
+
+.theme-height {
+  height: calc(100vh - 18px);
+}
+
+.box {
+  width: 30rem;
+  text-align: center;
+  padding: 30px 35px 35px;
+  display: grid;
+  justify-items: center;
+  z-index: 2;
+  position: relative;
+  margin-inline: 15px;
+  border: 1px solid hsla(0deg, 0%, 93%, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 5px 20px 0 hsl(212deg, 15%, 15%);
+  transition: all 0.4s;
+}
+
+.box h1 {
+  color: var(--contrast-color);
+  text-transform: uppercase;
+}
+
+.box a {
+  color: var(--contrast-color);
+}
+
+.box input[type=text]::-moz-placeholder, .box input[type=password]::-moz-placeholder {
+  color: var(--gray);
+  font-weight: normal;
+}
+
+.box input[type=text]:-ms-input-placeholder, .box input[type=password]:-ms-input-placeholder {
+  color: var(--gray);
+  font-weight: normal;
+}
+
+.box input[type=text]::placeholder,
+.box input[type=password]::placeholder {
+  color: var(--gray);
+  font-weight: normal;
+}
+
+.box a:hover {
+  color: var(--contrast-ambient-clr);
+}
+
+.box input[type=text],
+.box input[type=password] {
+  border: 0;
+  background: transparent;
+  display: block;
+  font-size: large;
+  margin: 20px auto;
+  text-align: center;
+  border: 2px solid var(--contrast-color);
+  padding: 14px 10px;
+  width: 200px;
+  outline: none;
+  color: var(--black);
+  font-weight: 600;
+  border-radius: 24px;
+  transition: 0.25s;
+}
+
+.box input[type=text]:focus,
+.box input[type=password]:focus {
+  width: 280px;
+  background-color: transparent;
+  border-color: var(--contrast-ambient-clr);
+}
+
+.box input[type=submit] {
+  border: 0;
+  background: var(--theme-clr);
+  display: block;
+  margin: 20px auto;
+  text-align: center;
+  border: 2px solid #222254;
+  padding: 14px 40px;
+  outline: none;
+  color: var(--contrast-color);
+  font-weight: 700;
+  border-radius: 24px;
+  transition: 0.25s;
+  cursor: pointer;
+}
+
+.box input[type=submit]:hover {
+  background: var(--contrast-color);
+  color: var(--white);
+}
+
+.wrapper {
+  background-color: var(--bg-clr);
+}
+
+.snack-custom {
+  color: var(--white);
+  background-color: var(--alert);
+}
+
+.snack-custom-child {
+  background: var(--white);
+  color: var(--black);
+}
+
+.circle {
+  width: 200px;
+  height: 200px;
+  background-color: var(--theme-clr);
+  border-radius: 50%;
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+}
+
+.circle.first {
+  transform: translate(-50%, -120%);
+}
+
+.circle.second {
+  display: none;
+}
+
+@media (min-width: 35.6em) {
+  .circle.first {
+    transform: translate(-140%, -140%);
+  }
+  .circle.second {
+    display: block;
+    transform: translate(40%, 40%);
+  }
+}
+.scale-in-ver-center {
+  -webkit-animation: scale-in-ver-center 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: scale-in-ver-center 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@-webkit-keyframes scale-in-ver-center {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+@keyframes scale-in-ver-center {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+.scale-out-vertical {
+  -webkit-animation: scale-out-vertical 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+  animation: scale-out-vertical 0.2s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+}
+
+@-webkit-keyframes scale-out-vertical {
+  0% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+}
+@keyframes scale-out-vertical {
+  0% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+}/*# sourceMappingURL=login.css.map */

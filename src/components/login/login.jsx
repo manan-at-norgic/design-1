@@ -29,6 +29,10 @@ const Login = ({ setIsLogin }) => {
     if (!e.target[0].value || !e.target[1].value) {
       setErr("Plz fill all fields properly");
       return setTimeout(() => {
+        let snack = document.querySelector(".snack-custom");
+        setTimeout(() => {
+          snack.classList = "fadeInUp";
+        }, 1000 * 2);
         setErr("");
       }, 5000);
     }
@@ -120,7 +124,7 @@ const Login = ({ setIsLogin }) => {
       {err !== "" ? (
         <div
           onClick={removeSnack}
-          className="m-4 absolute cursor-pointer top-0 right-0 p-4 snack-custom rounded-lg"
+          className="m-4 absolute cursor-pointer top-0 right-0 p-4 snack-custom rounded-lg fadeInDown"
         >
           <span
             style={{ padding: "1px 5px", fontFamily: "Arial" }}

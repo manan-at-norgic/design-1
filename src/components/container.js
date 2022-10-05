@@ -1,12 +1,15 @@
-import UserCard from "./userCard";
 import SenderMsgs from "./senderMsgs";
 import ReciverMsgs from "./reciverMsgs";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import Users from "../api/Users";
+
+import Modal from "./Modal";
 
 const Container = ({ setIsLogin }) => {
+  const [userp, setUserP] = useState([]);
   const [domainName, setConfig] = useState([]);
   // get name from url
   // let url = window.location.href;
@@ -21,6 +24,26 @@ const Container = ({ setIsLogin }) => {
   const logout = () => {
     localStorage.clear();
     setIsLogin(false);
+  };
+
+  const toggleModal = () => {
+    let modal = document.querySelectorAll(".createGroup");
+    modal.forEach((elem) => {
+      elem.classList.toggle("hidden");
+    });
+    // get users onclick create group
+    if (!modal[0].classList.contains("hidden")) {
+      alert("i am not hidden");
+      let token = localStorage.getItem("auth_token");
+      let data = {
+        auth_token: `${token}`,
+      };
+      const getAllUsers = async () => {
+        let res = await Users.getAllUsers(data);
+        setUserP(res.data.users);
+      };
+      getAllUsers();
+    }
   };
 
   useEffect(() => {
@@ -39,6 +62,7 @@ const Container = ({ setIsLogin }) => {
 
   return (
     <>
+      <Modal userp={userp} toggleModal={toggleModal} />
       <motion.div
         className=" w-full h-screen bg-clr theme-height"
         // initial={{ opacity: 0, y: 0 }}
@@ -111,11 +135,11 @@ const Container = ({ setIsLogin }) => {
             className=" w-1/4 -white overflow-scroll scroll-custom"
             style={{ height: "calc(100vh - 56px)" }}
           >
-            <div className="flex justify-end items-center shadow-md cursor-pointer">
+            <div
+              onClick={toggleModal}
+              className="flex justify-end items-center shadow-md cursor-pointer"
+            >
               <span className=" font-bold p-2">+Create Group</span>
-            </div>
-            <div className="">
-              <UserCard />
             </div>
           </aside>
           <aside className="bg_clr h-full w-full">

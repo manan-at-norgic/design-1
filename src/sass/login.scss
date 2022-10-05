@@ -21,6 +21,9 @@ $alert: #c53030;
 .text-clr {
   color: var(--black);
 }
+.alertText {
+  color: var(--alert);
+}
 .image__::before {
   content: "";
   width: 1rem;
@@ -40,6 +43,11 @@ $alert: #c53030;
 .theme-height {
   height: calc(100vh - 18px);
 }
+
+li.hide {
+  display: none;
+}
+
 .box {
   width: 30rem;
   text-align: center;
@@ -266,5 +274,68 @@ $alert: #c53030;
     -webkit-transform: scaleY(0);
     transform: scaleY(0);
     opacity: 1;
+  }
+}
+
+//animation for snackbar
+
+.fadeInDown {
+  animation-name: fadeInDown;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+@-webkit-keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+// go back
+.fadeInUp {
+  animation-name: fadeInUp;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+@-webkit-keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
   }
 }

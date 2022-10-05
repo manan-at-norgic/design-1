@@ -1,37 +1,11 @@
-import { useState } from "react";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import images from "../api/userDataApi";
-import Users from "../api/Users";
-import variables from "../api/variables";
+// import { useState } from "react";
+// import { useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import images from "../api/userDataApi";
+// import Users from "../api/Users";
+// import variables from "../api/variables";
 
-const UserCard = () => {
-  const navigate = useNavigate();
-  let [users, setUsers] = useState([]);
-  useEffect(() => {
-    let token = localStorage.getItem("auth_token");
-    if (!token) {
-      alert("user not logged in");
-
-      navigate("/login", { replace: true });
-    }
-
-    let data = {
-      auth_token: `${token}`,
-    };
-
-    const getAllUsers = async () => {
-      let res = await Users.getAllUsers(data);
-      setUsers(res.data.users);
-      // console.log(
-      //   users.map((elem) => {
-      //     return elem.username;
-      //   }),
-      //   "yoooooooooo"
-      // );
-    };
-    getAllUsers();
-  }, []);
+const UserCard = ({ users }) => {
   return (
     <>
       {users.map((elem, index) => {

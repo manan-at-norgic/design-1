@@ -130,7 +130,7 @@ const Register = ({ setIsLogin }) => {
       {err !== "" ? (
         <div
           onClick={removeSnack}
-          className="m-4 absolute cursor-pointer top-0 right-0 p-4 rounded-lg snack-custom"
+          className="m-4 absolute cursor-pointer top-0 right-0 p-4 rounded-lg snack-custom fadeInDown"
         >
           <span
             style={{ padding: "1px 5px", fontFamily: "Arial" }}

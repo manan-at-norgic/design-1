@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import url("./ccFooter.css");
+@import url("./chat.css");
 
 @import url("https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300&display=swap");
 
@@ -38,7 +39,7 @@
   //   background-color: rgb(255, 230, 0, 15%);
   // background-color: #fffbd9;
   //   background-color: white;
-  border-left: 1px solid rgba(0, 0, 0, 0.068);
+  border-right: 1px solid rgba(0, 0, 0, 0.068);
 }
 .img-container {
   border-radius: 50%;
@@ -50,6 +51,27 @@
   animation-duration: 0.5s;
 }
 
+.animated-check {
+  height: 20px;
+  width: 20px;
+}
+
+.animated-check path {
+  fill: none;
+  stroke: #7ac142;
+  stroke-width: 4;
+  stroke-dasharray: 23;
+  stroke-dashoffset: 23;
+  animation: draw 1s linear forwards;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 @keyframes myanimation {
   from {
     margin-left: -112rem;
@@ -60,11 +82,11 @@
 }
 
 // logo animation
-.waviy {
-  position: relative;
-}
+// .waviy {
+//   position: relative;
+// }
 .waviy span {
-  position: relative;
+  // position: relative;
   display: inline-block;
   letter-spacing: 2.5px;
   //   font-size: 40px;

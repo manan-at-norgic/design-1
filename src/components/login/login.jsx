@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Users from "../../api/Users";
 import variables from "../../api/variables";
-
+import Snackbar from "../snackbar";
 import "../../sass/login.css";
 
 const animations = {
@@ -29,10 +29,10 @@ const Login = ({ setIsLogin }) => {
     if (!e.target[0].value || !e.target[1].value) {
       setErr("Plz fill all fields properly");
       return setTimeout(() => {
-        let snack = document.querySelector(".snack-custom");
-        setTimeout(() => {
-          snack.classList = "fadeInUp";
-        }, 1000 * 2);
+        // let snack = document.querySelector(".snack-custom");
+        // setTimeout(() => {
+        //   snack.classList = "fadeInUp";
+        // }, 1000 * 2);
         setErr("");
       }, 5000);
     }
@@ -67,9 +67,9 @@ const Login = ({ setIsLogin }) => {
     box.classList.add("scale-out-vertical");
   };
 
-  const removeSnack = () => {
-    return setErr("");
-  };
+  // const removeSnack = () => {
+  //   return setErr("");
+  // };
 
   useEffect(() => {
     if (a) {
@@ -121,22 +121,7 @@ const Login = ({ setIsLogin }) => {
           <div className="circle second" aria-hidden="true"></div>
         </section>
       </form>
-      {err !== "" ? (
-        <div
-          onClick={removeSnack}
-          className="m-4 absolute cursor-pointer top-0 right-0 p-4 snack-custom rounded-lg fadeInDown"
-        >
-          <span
-            style={{ padding: "1px 5px", fontFamily: "Arial" }}
-            className="snack-custom-child rounded-full mx-2 font-bold"
-          >
-            x
-          </span>
-          {err}
-        </div>
-      ) : (
-        ""
-      )}
+      <Snackbar err={err} />
     </>
   );
 };

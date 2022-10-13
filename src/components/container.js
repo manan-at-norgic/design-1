@@ -5,12 +5,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Users from "../api/Users";
-
+import attachment from "../assets/attachment.svg";
 import Modal from "./Modal";
 
 const Container = ({ setIsLogin }) => {
   const [userp, setUserP] = useState([]);
   const [domainName, setConfig] = useState([]);
+  const [allGroups, setAllGroups] = useState([]);
+  let token = localStorage.getItem("auth_token");
+  let localUser = JSON.parse(localStorage.getItem("user"));
   // get name from url
   // let url = window.location.href;
   // let aurl = new URL(url).host;
@@ -21,11 +24,25 @@ const Container = ({ setIsLogin }) => {
   // for (let i = 0; i < host.length; i++) {
   //   domainName.push(host[i]);
   // }
+  const userMsgs = (currentGroup) => {
+    console.log(currentGroup);
+  };
+  const getAllGroups = async () => {
+    const allGroupsRes = await Users.allGroups({ auth_token: token });
+    // console.log(`res-> `, allGroupsRes);
+    setAllGroups(allGroupsRes.data.groups);
+  };
   const logout = () => {
     localStorage.clear();
     setIsLogin(false);
   };
+  const getGroupName = (elem) => {
+    let splitedNames = elem.group_title.split("-");
 
+    if (splitedNames[0] !== localUser.username) {
+      return splitedNames[0];
+    }
+  };
   const toggleModal = () => {
     let modal = document.querySelectorAll(".createGroup");
     modal.forEach((elem) => {
@@ -33,8 +50,6 @@ const Container = ({ setIsLogin }) => {
     });
     // get users onclick create group
     if (!modal[0].classList.contains("hidden")) {
-      alert("i am not hidden");
-      let token = localStorage.getItem("auth_token");
       let data = {
         auth_token: `${token}`,
       };
@@ -45,24 +60,31 @@ const Container = ({ setIsLogin }) => {
       getAllUsers();
     }
   };
+  const config = async () => {
+    let res = await axios.get("config.json");
+    // console.log(res.data.name);
+    let name = res.data.name;
+    let domainName = [];
+    for (let i = 0; i < name.length; i++) {
+      domainName.push(name[i]);
+    }
+    setConfig(domainName);
+  };
 
+  // console.log("groups-->", allGroups);
   useEffect(() => {
-    const config = async () => {
-      let res = await axios.get("config.json");
-      console.log(res.data.name);
-      let name = res.data.name;
-      let domainName = [];
-      for (let i = 0; i < name.length; i++) {
-        domainName.push(name[i]);
-      }
-      setConfig(domainName);
-    };
+    getAllGroups();
     config();
+    // getAllGroups();
   }, []);
 
   return (
     <>
-      <Modal userp={userp} toggleModal={toggleModal} />
+      <Modal
+        userp={userp}
+        toggleModal={toggleModal}
+        getAllGroups={getAllGroups}
+      />
       <motion.div
         className=" w-full h-screen bg-clr theme-height"
         // initial={{ opacity: 0, y: 0 }}
@@ -132,17 +154,42 @@ const Container = ({ setIsLogin }) => {
           {/* 25% and 75% width each aside respectively */}
           {/* left side  */}
           <aside
-            className=" w-1/4 -white overflow-scroll scroll-custom"
+            className=" w-1/4 -white "
             style={{ height: "calc(100vh - 56px)" }}
           >
+            {/* fixed header */}
+            <div className="">
+              <div
+                onClick={toggleModal}
+                className="flex justify-end items-center shadow-md cursor-pointer"
+              >
+                <span className=" font-bold p-2">+Create Group</span>
+              </div>
+            </div>
+            {/* end fixed header */}
             <div
-              onClick={toggleModal}
-              className="flex justify-end items-center shadow-md cursor-pointer"
+              className="overflow-scroll scroll-custom"
+              style={{ height: "calc(100vh - 120px)" }}
             >
-              <span className=" font-bold p-2">+Create Group</span>
+              {allGroups.map((elem, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="fade-in item__ -white rounded-lg shadow-lg flex justify-start pl-4 my-2 py-4"
+                    onClick={() => {
+                      userMsgs(elem);
+                    }}
+                  >
+                    {getGroupName(elem)}
+                  </div>
+                );
+              })}
             </div>
           </aside>
-          <aside className="bg_clr h-full w-full">
+          <aside
+            className="bg_clr h-full w-full flex flex-col justify-between"
+            style={{ height: "calc(100vh - 56px)" }}
+          >
             <div className="flex justify-between">
               <div className=" w-1/2 m-2">
                 <SenderMsgs />
@@ -151,26 +198,17 @@ const Container = ({ setIsLogin }) => {
                 <ReciverMsgs />
               </div>
             </div>
-            <div
-              className="absolute flex bottom-0"
-              style={{ width: "calc(100vw - 25%)" }}
-            >
+            <div className=" flex " style={{ width: "calc(100vw - 25%)" }}>
               <div className="ml-4 my-4 py-4">
                 <label htmlFor="file" className="img_label cursor-pointer">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                  <img
                     style={{
                       height: "1.5rem",
                       width: "1.5rem",
-                      transform: "rotate(25deg)",
                     }}
-                    fill="currentColor"
-                    viewBox="0 0 15 20"
-                  >
-                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z" />
-                  </svg>
+                    src={attachment}
+                    alt="attachment"
+                  />
                 </label>
                 <input
                   id="file"

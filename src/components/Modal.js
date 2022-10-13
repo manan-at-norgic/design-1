@@ -1,14 +1,19 @@
+// start get all groups
 import { useEffect, useState } from "react";
 import Users from "../api/Users";
+import Snackbar from "./snackbar";
+
 // import Users from "../api/Users";
 // import UserCard from "./userCard";
 
-const Modal = ({ userp, toggleModal }) => {
+const Modal = ({ userp, toggleModal, getAllGroups }) => {
   let [users, setUsers] = useState([]);
   let [search, setSearch] = useState("");
+  let [selectedUsers, setSelectedUsers] = useState([]);
+  let [err, setErr] = useState(``);
+  let [groupTitle, setGroupTitle] = useState("");
 
   const findString = (e) => {
-    // console.log(e);
     let lowered = e.username.toLowerCase(),
       loweredS = search.toLowerCase();
     // e.username.indexOf(search) > -1
@@ -19,12 +24,87 @@ const Modal = ({ userp, toggleModal }) => {
     }
   };
 
+  const getUsers = (elem) => {
+    let tick = document.querySelector(`.tick-icon.${elem.username}`);
+    tick.classList.remove("hidden");
+    document.querySelector(".donee").classList.remove("hidden");
+    if (
+      selectedUsers.find((el) => el.username === elem.username) != undefined
+    ) {
+      return;
+    } else {
+      setSelectedUsers([
+        ...selectedUsers,
+        { username: elem.username, user_id: elem.user_id },
+      ]);
+    }
+  };
+  console.log("selected users =======>", selectedUsers);
+
+  const createGroup = async () => {
+    let token = localStorage.getItem("auth_token");
+    let localUser = JSON.parse(localStorage.getItem("user"));
+
+    if (selectedUsers.length <= 1) {
+      const data = {
+        auth_token: `${token}`,
+        group_title: `${selectedUsers[0].username}-${localUser.username}`,
+        auto_created: "1",
+        participants: [selectedUsers[0].user_id],
+      };
+      const res = await Users.createGroup(data);
+      if (res.data.is_already_created) {
+        setErr("Chat is already created");
+        setTimeout(() => {
+          setErr("");
+        }, 5000);
+        toggleModal();
+        setSearch("");
+        setSelectedUsers([]);
+        let tick = document.querySelectorAll(".tick-icon");
+        tick.forEach((item) => {
+          item.classList.add("hidden");
+        });
+      } else {
+        setErr(res.data.message);
+      }
+      console.log("group created --->", res);
+      getAllGroups();
+    } else {
+      const data = {
+        auth_token: `${token}`,
+        group_title: `${groupTitle}`,
+        auto_created: "0",
+        // returning user idz
+        participants: selectedUsers.map((elem) => elem.user_id),
+      };
+      console.log(data);
+      const res = await Users.createGroup(data);
+      console.log("group created --->", res);
+      getAllGroups();
+
+      setErr(res.data.message);
+      return setTimeout(() => {
+        setErr("");
+      }, 5000);
+    }
+  };
+
   useEffect(() => {
     setUsers(userp);
   }, [userp]);
   return (
     <>
       <div
+        onClick={() => {
+          toggleModal();
+          setSearch("");
+          setSelectedUsers([]);
+          let tick = document.querySelectorAll(".tick-icon");
+          tick.forEach((item) => {
+            item.classList.add("hidden");
+          });
+        }}
         className="absolute w-full h-full overflow-hidden createGroup hidden"
         style={{ zindex: "-1", background: "#eefc0042" }}
       ></div>
@@ -58,6 +138,11 @@ const Modal = ({ userp, toggleModal }) => {
               onClick={() => {
                 toggleModal();
                 setSearch("");
+                setSelectedUsers([]);
+                let tick = document.querySelectorAll(".tick-icon");
+                tick.forEach((item) => {
+                  item.classList.add("hidden");
+                });
               }}
               className="absolute cursor-pointer text-center font-bold text-xl alertText right-6 -top-6"
             >
@@ -68,7 +153,7 @@ const Modal = ({ userp, toggleModal }) => {
         {/* modal Body */}
         <div
           className="-mt-4 overflow-scroll scroll-custom m-4"
-          style={{ height: "85%" }}
+          style={{ height: "70%" }}
         >
           {/* 
           users card below
@@ -76,9 +161,14 @@ const Modal = ({ userp, toggleModal }) => {
 
           {users.map((elem, index) => {
             return (
-              <div key={index}>
+              <div
+                key={index}
+                onClick={() => {
+                  getUsers(elem);
+                }}
+              >
                 {findString(elem) === true ? (
-                  <div className="fade-in item__ -white rounded-lg shadow-lg flex justify-around h-auto my-2">
+                  <div className="fade-in item__ -white rounded-lg shadow-lg flex items-center justify-center  h-auto my-2">
                     {/* img container */}
                     {/* <div className="w-16 h-16 overflow-hidden img-container my-1">
           <img src={elem.pic} alt="Boat" className="rounded-t-lg" />
@@ -88,10 +178,15 @@ const Modal = ({ userp, toggleModal }) => {
                       <h2 className=" font-semibold text-lg text-clr">
                         {elem.username}
                       </h2>
-                      <p className=" text-sm text-clr">Say hi..!</p>
                     </div>
-                    {/* user status */}
-                    <div className=" text-4xl text-clr">•</div>
+                    {/* user status */}&nbsp;&nbsp;
+                    <div
+                      className={`text-4xl text-clr tick-icon hidden  ${elem.username}`}
+                    >
+                      <svg className="animated-check" viewBox="0 0 24 24">
+                        <path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none" />
+                      </svg>
+                    </div>
                   </div>
                 ) : (
                   ""
@@ -100,7 +195,56 @@ const Modal = ({ userp, toggleModal }) => {
             );
           })}
         </div>
+        {/* modal gooter */}
+        <div className="donee hidden text-lg text-green-500">
+          {selectedUsers.length <= 1 ? (
+            <div
+              onClick={() => {
+                createGroup();
+                toggleModal();
+                setSearch("");
+                setSelectedUsers([]);
+                let tick = document.querySelectorAll(".tick-icon");
+                setTimeout(() => {
+                  setErr("");
+                }, 5000);
+                tick.forEach((item) => {
+                  item.classList.add("hidden");
+                });
+              }}
+              className="cursor-pointer"
+            >
+              start chat
+            </div>
+          ) : (
+            <div className="flex justify-center items-center">
+              <input
+                type="text"
+                placeholder="Group Name"
+                onChange={(e) => setGroupTitle(e.target.value)}
+              />
+              <button
+                onClick={() => {
+                  createGroup();
+                  toggleModal();
+                  setSearch("");
+                  setSelectedUsers([]);
+                  setTimeout(() => {
+                    setErr("");
+                  }, 5000);
+                  let tick = document.querySelectorAll(".tick-icon");
+                  tick.forEach((item) => {
+                    item.classList.add("hidden");
+                  });
+                }}
+              >
+                submit
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+      <Snackbar err={err} />
     </>
   );
 };

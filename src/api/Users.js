@@ -13,8 +13,15 @@ const Users = {
     return res;
   },
   getAllUsers: async (data) => {
-    let auth_token = localStorage.getItem("auth_token");
     let res = await axios.post(`${variables.API_URL}AllUsers`, data);
+    return res;
+  },
+  createGroup: async (data) => {
+    let res = await axios.post(`${variables.API_URL}CreateGroup`, data);
+    return res;
+  },
+  allGroups: async (data) => {
+    let res = await axios.post(`${variables.API_URL}AllGroups`, data);
     return res;
   },
 };

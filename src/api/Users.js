@@ -24,5 +24,9 @@ const Users = {
     let res = await axios.post(`${variables.API_URL}AllGroups`, data);
     return res;
   },
+  deleteGroup: async (data) => {
+    let res = await axios.post(`${variables.API_URL}DeleteGroup`, data);
+    return res;
+  },
 };
 export default Users;

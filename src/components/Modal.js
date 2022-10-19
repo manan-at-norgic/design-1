@@ -39,7 +39,7 @@ const Modal = ({ userp, toggleModal, getAllGroups }) => {
       ]);
     }
   };
-  console.log("selected users =======>", selectedUsers);
+  // console.log("selected users =======>", selectedUsers);
 
   const createGroup = async () => {
     let token = localStorage.getItem("auth_token");
@@ -58,7 +58,7 @@ const Modal = ({ userp, toggleModal, getAllGroups }) => {
         setTimeout(() => {
           setErr("");
         }, 5000);
-        toggleModal();
+        // toggleModal();
         setSearch("");
         setSelectedUsers([]);
         let tick = document.querySelectorAll(".tick-icon");
@@ -106,7 +106,7 @@ const Modal = ({ userp, toggleModal, getAllGroups }) => {
           });
         }}
         className="absolute w-full h-full overflow-hidden createGroup hidden"
-        style={{ zindex: "-1", background: "#eefc0042" }}
+        style={{ zindex: "-1" }}
       ></div>
       {/* Modal starts */}
       <div className="fixed left-1/3 top-1/4 w-full max-w-md h-1/2 border hidden createGroup bg-slate-300 rounded-2xl">

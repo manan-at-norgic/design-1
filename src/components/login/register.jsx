@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Users from "../../api/Users";
 import variables from "../../api/variables";
+import Snackbar from "../snackbar";
 import "../../sass/login.css";
 
 const Register = ({ setIsLogin }) => {
@@ -41,7 +42,10 @@ const Register = ({ setIsLogin }) => {
       }
       const Emailreg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
       if (!Emailreg.test(e.target[1].value)) {
-        return setErr("Plz enter valid email");
+        setErr("Plz enter valid email");
+        return setTimeout(() => {
+          setErr("");
+        }, 5000);
       }
 
       const res = await Users.signUp(user);
@@ -61,9 +65,9 @@ const Register = ({ setIsLogin }) => {
     }
   };
 
-  const removeSnack = () => {
-    return setErr("");
-  };
+  // const removeSnack = () => {
+  //   return setErr("");
+  // };
 
   useEffect(() => {
     let token = localStorage.getItem("auth_token");
@@ -127,22 +131,7 @@ const Register = ({ setIsLogin }) => {
           <div className="circle second" aria-hidden="true"></div>
         </section>
       </form>
-      {err !== "" ? (
-        <div
-          onClick={removeSnack}
-          className="m-4 absolute cursor-pointer top-0 right-0 p-4 rounded-lg snack-custom fadeInDown"
-        >
-          <span
-            style={{ padding: "1px 5px", fontFamily: "Arial" }}
-            className="snack-custom-child rounded-full mx-2 font-bold"
-          >
-            x
-          </span>
-          {err}
-        </div>
-      ) : (
-        ""
-      )}
+      <Snackbar err={err} />
     </>
   );
 };

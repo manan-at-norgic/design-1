@@ -1,16 +1,24 @@
-import SenderMsgs from "./senderMsgs";
-import ReciverMsgs from "./reciverMsgs";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Users from "../api/Users";
-
+import attachment from "../assets/attachment.svg";
 import Modal from "./Modal";
+import Snackbar from "./snackbar";
+import variables from "../api/variables";
 
 const Container = ({ setIsLogin }) => {
   const [userp, setUserP] = useState([]);
+  let [err, setErr] = useState(``);
   const [domainName, setConfig] = useState([]);
+  const [allGroups, setAllGroups] = useState([]);
+  let [msgs, setMsgs] = useState([]);
+  let [sendMsg, setSendMsg] = useState("");
+  let token = localStorage.getItem("auth_token");
+  const [currentGroup, setCurrentGroup] = useState({});
+  let [text, setText] = useState("");
+  let localUser = JSON.parse(localStorage.getItem("user"));
   // get name from url
   // let url = window.location.href;
   // let aurl = new URL(url).host;
@@ -21,11 +29,36 @@ const Container = ({ setIsLogin }) => {
   // for (let i = 0; i < host.length; i++) {
   //   domainName.push(host[i]);
   // }
+  const userMsgs = (currentGroup) => {
+    setCurrentGroup(currentGroup);
+    // let Manan = document.querySelector(".Manan");
+    // Manan.innerHTML = "";
+    setMsgs([]);
+    console.log(currentGroup);
+  };
+  const getAllGroups = async () => {
+    const allGroupsRes = await Users.allGroups({ auth_token: token });
+    // console.log(`res-> `, allGroupsRes);
+    setAllGroups(allGroupsRes.data.groups);
+  };
   const logout = () => {
     localStorage.clear();
     setIsLogin(false);
   };
+  const getGroupName = (elem) => {
+    if (elem === undefined) {
+      return "";
+    }
+    let splitedNames = elem.group_title.split("-");
 
+    let res = splitedNames.filter((item) => item !== localUser.username);
+    // console.log("name-----", res);
+    return res;
+    // old logic
+    // if (splitedNames[0] !== localUser.username) {
+    //   return splitedNames[0];
+    // }
+  };
   const toggleModal = () => {
     let modal = document.querySelectorAll(".createGroup");
     modal.forEach((elem) => {
@@ -33,8 +66,6 @@ const Container = ({ setIsLogin }) => {
     });
     // get users onclick create group
     if (!modal[0].classList.contains("hidden")) {
-      alert("i am not hidden");
-      let token = localStorage.getItem("auth_token");
       let data = {
         auth_token: `${token}`,
       };
@@ -45,24 +76,90 @@ const Container = ({ setIsLogin }) => {
       getAllUsers();
     }
   };
+  const config = async () => {
+    let res = await axios.get("config.json");
+    // console.log(res.data.name);
+    let name = res.data.name;
+    let domainName = [];
+    for (let i = 0; i < name.length; i++) {
+      domainName.push(name[i]);
+    }
+    setConfig(domainName);
+  };
+  const deleteGroup = async (id) => {
+    setErr("");
+    let res = await Users.deleteGroup({
+      group_id: `${id}`,
+      auth_token: `${localUser.auth_token}`,
+    });
+    console.log("group deleted ====> ", res);
+    setErr(res.data.message);
+    setTimeout(() => {
+      setErr("");
+    }, 5000);
+    getAllGroups();
+    // alert(`delete group ---> ${id}`);
+  };
+  /*eslint-disable */
+  const initializeChatSDK = () => {
+    let Client = new MVDOTOK.Client({
+      projectID: `${variables.projectID}`,
+      secret: `${variables.apiKey}`,
+      host: `${localUser.messaging_server_map.complete_address}`,
+    });
+    // console.log("client after initializing==>", Client);
+    Client.Register(localUser.ref_id, localUser.authorization_token);
+    Client.on("connect", (res) => {
+      // you can do something after connecting the socket
+      // console.log("**res on connect sdk", res);
+    });
+    // subscribe all channels
+    let grpsToSubscribe = [];
+    allGroups.map((e) => {
+      grpsToSubscribe.push({ key: e.channel_key, channel: e.channel_name });
+    });
+    grpsToSubscribe.map((e) => {
+      Client.Subscribe(e);
+    });
+  }; /*eslint-enable */
 
-  useEffect(() => {
-    const config = async () => {
-      let res = await axios.get("config.json");
-      console.log(res.data.name);
-      let name = res.data.name;
-      let domainName = [];
-      for (let i = 0; i < name.length; i++) {
-        domainName.push(name[i]);
-      }
-      setConfig(domainName);
+  const handleSubmitMsg = () => {
+    setMsgs([...msgs, sendMsg]);
+
+    setSendMsg("");
+
+    if (sendMsg === "") {
+      setErr("plz type msgs to send");
+      setTimeout(() => {
+        setErr("");
+      }, 5000);
+    }
+  };
+  const getquotes = async () => {
+    let res = await axios.get("https://type.fit/api/quotes");
+    Array.prototype.random = function random() {
+      return this[Math.floor(Math.random() * this.length)];
     };
+
+    setText(res.data.random());
+  };
+  console.log(msgs);
+  // console.log("groups-->", allGroups);
+  useEffect(() => {
+    initializeChatSDK();
+    getAllGroups();
     config();
-  }, []);
+    getquotes();
+    // getAllGroups();
+  }, [sendMsg]);
 
   return (
     <>
-      <Modal userp={userp} toggleModal={toggleModal} />
+      <Modal
+        userp={userp}
+        toggleModal={toggleModal}
+        getAllGroups={getAllGroups}
+      />
       <motion.div
         className=" w-full h-screen bg-clr theme-height"
         // initial={{ opacity: 0, y: 0 }}
@@ -101,7 +198,7 @@ const Container = ({ setIsLogin }) => {
                     fillRule="evenodd"
                     d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"
                   />
-                </svg>{" "}
+                </svg>
               </button>
               <div className=" w-5"></div>
               <button>
@@ -132,63 +229,176 @@ const Container = ({ setIsLogin }) => {
           {/* 25% and 75% width each aside respectively */}
           {/* left side  */}
           <aside
-            className=" w-1/4 -white overflow-scroll scroll-custom"
+            className=" w-1/4 -white "
             style={{ height: "calc(100vh - 56px)" }}
           >
+            {/* fixed header */}
+            <div className="">
+              <div
+                onClick={toggleModal}
+                className="flex justify-end items-center shadow-md cursor-pointer"
+              >
+                <span className=" font-bold p-2">+ Chat With</span>
+              </div>
+            </div>
+            {/* end fixed header */}
             <div
-              onClick={toggleModal}
-              className="flex justify-end items-center shadow-md cursor-pointer"
+              className="overflow-scroll scroll-custom"
+              style={{ height: "calc(100vh - 120px)" }}
             >
-              <span className=" font-bold p-2">+Create Group</span>
+              {allGroups ? (
+                <>
+                  {allGroups.map((elem, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="fade-in item__ capitalize -white rounded-lg shadow-lg flex justify-around pl-4 my-2 py-4"
+                      >
+                        <span
+                          className=" cursor-pointer"
+                          onClick={() => {
+                            userMsgs(elem);
+                          }}
+                        >
+                          {getGroupName(elem)}
+                        </span>
+                        <span
+                          className="lowercase alertText cursor-pointer"
+                          onClick={() => {
+                            deleteGroup(elem.id);
+                          }}
+                        >
+                          x
+                        </span>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                ""
+              )}
             </div>
           </aside>
-          <aside className="bg_clr h-full w-full">
-            <div className="flex justify-between">
-              <div className=" w-1/2 m-2">
-                <SenderMsgs />
+          <aside
+            className="bg_clr w-full "
+            style={{ height: "calc(100vh - 56px)" }}
+          >
+            {/* fixed header */}
+            {currentGroup.group_title ? (
+              <div className="w-full text-center zoomIn capitalize shadow-md cursor-pointer -white font-bold p-2">
+                {getGroupName(currentGroup)}
               </div>
-              <div className="m-2 w-1/2 flex flex-col items-end">
-                <ReciverMsgs />
-              </div>
-            </div>
+            ) : (
+              currentGroup.group_title
+            )}
+
+            {/* end fixed header */}
+            {/* chat box start */}
             <div
-              className="absolute flex bottom-0"
-              style={{ width: "calc(100vw - 25%)" }}
+              className="overflow-scroll scroll-custom flex flex-col justify-between"
+              style={{ height: "calc(100vh - 11rem)" }}
             >
-              <div className="ml-4 my-4 py-4">
-                <label htmlFor="file" className="img_label cursor-pointer">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    style={{
-                      height: "1.5rem",
-                      width: "1.5rem",
-                      transform: "rotate(25deg)",
-                    }}
-                    fill="currentColor"
-                    viewBox="0 0 15 20"
+              <div className="flex justify-between">
+                {console.log("msgs----", msgs)}
+                {msgs.length === 0 && !currentGroup.group_title ? (
+                  <div
+                    className="flex justify-center items-center w-full "
+                    style={{ height: "75vh" }}
                   >
-                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z" />
-                  </svg>
-                </label>
-                <input
-                  id="file"
-                  type="file"
-                  name="img_label"
-                  className="hidden"
-                />
+                    <div
+                      className="w-1/2 text-center text-2xl"
+                      style={
+                        {
+                          // textShadow:
+                          //   "2px 2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, -2px -2px 0 #fff, 2px 0px 0 #fff, 0px 2px 0 #fff, -2px 0px 0 #fff, 0px -2px 0 #fff",
+                        }
+                      }
+                    >
+                      {text.text}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="Manan w-full">
+                    {msgs.map((msg, key) => {
+                      return (
+                        <div
+                          className="bg-white rounded-m w-32 text-ellipsis text-center p-2 m-4 "
+                          key={key}
+                        >
+                          {msg}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* <div className=" w-1/2 m-2">
+                  <SenderMsgs />
+                </div>
+                <div className="m-2 w-1/2 flex flex-col items-end">
+                  <ReciverMsgs />
+                </div> */}
               </div>
-              <input
-                type="text"
-                placeholder="Write message..."
-                className="w-full  m-4 h-14 p-4 rounded-xl"
-                style={{ width: "calc(100vw - 38%)" }}
-              />
             </div>
+            {/* chat box end */}
+
+            {currentGroup.group_title ? (
+              <div
+                className={!currentGroup.group_title ? " flex mt-10" : "flex"}
+                style={{ width: "calc(100vw - 30%)" }}
+              >
+                <div className="ml-4 py-4">
+                  <label htmlFor="file" className="img_label cursor-pointer">
+                    <img
+                      style={{
+                        height: "1.5rem",
+                        width: "1.5rem",
+                      }}
+                      src={attachment}
+                      alt="attachment"
+                    />
+                  </label>
+                  <input
+                    id="file"
+                    type="file"
+                    name="img_label"
+                    className="hidden"
+                  />
+                </div>
+                <label
+                  className="w-full h-14 flex justify-around items-center"
+                  style={{ width: "calc(100vw - 38%)" }}
+                  htmlFor="sendmsgs"
+                >
+                  <input
+                    type="text"
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleSubmitMsg();
+                      }
+                    }}
+                    placeholder="Write message..."
+                    className="w-3/4 p-4 rounded-xl"
+                    name="sendmsgs"
+                    value={sendMsg === "" ? "" : sendMsg}
+                    onChange={(e) => {
+                      setSendMsg(e.target.value);
+                    }}
+                  />
+                  <button
+                    onClick={() => handleSubmitMsg()}
+                    className=" bg-sky-500 text-black h-14 w-20 rounded-md border-none outline-none hover:bg-white hover:text-sky-500"
+                  >
+                    send
+                  </button>
+                </label>
+              </div>
+            ) : (
+              ""
+            )}
           </aside>
         </section>
       </motion.div>
+      <Snackbar err={err} />
     </>
   );
 };

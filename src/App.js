@@ -10,6 +10,7 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
+    document.title = "webrtc by Manan";
     const checkLogin = () => {
       let token = localStorage.getItem("user");
 

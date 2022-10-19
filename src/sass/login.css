@@ -4,8 +4,8 @@
   --gray: rgb(175 175 175 / 60%);
   --contrast-color: #222254;
   --contrast-ambient-clr: rgb(29 78 216);
-  --theme-clr: #fffa9e;
-  --bg-clr: rgba(255, 230, 0, 0.15);
+  --theme-clr: #919aff;
+  --bg-clr: rgb(3 0 255 / 15%);
   --alert: #c53030;
 }
 
@@ -282,5 +282,31 @@ li.hide {
   100% {
     opacity: 1;
     transform: none;
+  }
+}
+.zoomIn {
+  -webkit-animation-name: zoomIn;
+          animation-name: zoomIn;
+  -webkit-animation-duration: 0.2s;
+          animation-duration: 0.2s;
+}
+
+@-webkit-keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  50% {
+    opacity: 1;
   }
 }/*# sourceMappingURL=login.css.map */

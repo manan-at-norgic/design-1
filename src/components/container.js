@@ -7,6 +7,8 @@ import attachment from "../assets/attachment.svg";
 import Modal from "./Modal";
 import Snackbar from "./snackbar";
 import variables from "../api/variables";
+import { useDispatch, useSelector } from "react-redux";
+import { addChat } from "../redux/chatStore";
 
 const Container = ({ setIsLogin }) => {
   const [userp, setUserP] = useState([]);
@@ -19,16 +21,11 @@ const Container = ({ setIsLogin }) => {
   const [currentGroup, setCurrentGroup] = useState({});
   let [text, setText] = useState("");
   let localUser = JSON.parse(localStorage.getItem("user"));
-  // get name from url
-  // let url = window.location.href;
-  // let aurl = new URL(url).host;
-  // let host = aurl.split(":");
-  // host = host[0].toString();
 
-  // let domainName = [];
-  // for (let i = 0; i < host.length; i++) {
-  //   domainName.push(host[i]);
-  // }
+  const dispatch = useDispatch();
+  const chatStore = useSelector((state) => state.chatStore.value);
+  console.log(`chat store-----> `, chatStore);
+
   const userMsgs = (currentGroup) => {
     setCurrentGroup(currentGroup);
     // let Manan = document.querySelector(".Manan");
@@ -258,6 +255,12 @@ const Container = ({ setIsLogin }) => {
                           className=" cursor-pointer"
                           onClick={() => {
                             userMsgs(elem);
+                            dispatch(
+                              addChat({
+                                group_name: currentGroup.group_title,
+                                group_id: currentGroup.id,
+                              })
+                            );
                           }}
                         >
                           {getGroupName(elem)}

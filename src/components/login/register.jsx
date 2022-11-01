@@ -6,8 +6,10 @@ import Users from "../../api/Users";
 import variables from "../../api/variables";
 import Snackbar from "../snackbar";
 import "../../sass/login.css";
+import { useDispatch } from "react-redux";
+import { loggedIn } from "../../redux/actions/setLogin";
 
-const Register = ({ setIsLogin }) => {
+const Register = () => {
   const navigate = useNavigate();
   const [err, setErr] = useState(``);
   const [a, seta] = useState(false);
@@ -20,6 +22,10 @@ const Register = ({ setIsLogin }) => {
     password: "",
     project_id: `${variables.projectID}`,
   });
+
+  //redux
+  const dispatch = useDispatch();
+  //end redux
 
   const onChangeInputs = (e) => {
     const { name, value } = e.target;
@@ -74,7 +80,8 @@ const Register = ({ setIsLogin }) => {
     if (token) return navigate("/", { replace: true });
     console.log("hii");
     seta(false);
-    setIsLogin(true);
+    // setIsLogin(true);
+    dispatch(loggedIn(true));
 
     // let data = {
 

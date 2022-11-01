@@ -7,10 +7,10 @@ import attachment from "../assets/attachment.svg";
 import Modal from "./Modal";
 import Snackbar from "./snackbar";
 import variables from "../api/variables";
-import { useDispatch, useSelector } from "react-redux";
-import { addChat } from "../redux/chatStore";
+import { useDispatch } from "react-redux";
+import { loggedIn } from "../redux/actions/setLogin";
 
-const Container = ({ setIsLogin }) => {
+const Container = () => {
   const [userp, setUserP] = useState([]);
   let [err, setErr] = useState(``);
   const [domainName, setConfig] = useState([]);
@@ -23,16 +23,7 @@ const Container = ({ setIsLogin }) => {
   let localUser = JSON.parse(localStorage.getItem("user"));
 
   const dispatch = useDispatch();
-  const chatStore = useSelector((state) => state.chatStore.value);
-  console.log(`chat store-----> `, chatStore);
 
-  const userMsgs = (currentGroup) => {
-    setCurrentGroup(currentGroup);
-    // let Manan = document.querySelector(".Manan");
-    // Manan.innerHTML = "";
-    setMsgs([]);
-    console.log(currentGroup);
-  };
   const getAllGroups = async () => {
     const allGroupsRes = await Users.allGroups({ auth_token: token });
     // console.log(`res-> `, allGroupsRes);
@@ -40,7 +31,8 @@ const Container = ({ setIsLogin }) => {
   };
   const logout = () => {
     localStorage.clear();
-    setIsLogin(false);
+    // setIsLogin(false);
+    dispatch(loggedIn(false));
   };
   const getGroupName = (elem) => {
     if (elem === undefined) {
@@ -97,28 +89,28 @@ const Container = ({ setIsLogin }) => {
     getAllGroups();
     // alert(`delete group ---> ${id}`);
   };
-  /*eslint-disable */
-  const initializeChatSDK = () => {
-    let Client = new MVDOTOK.Client({
-      projectID: `${variables.projectID}`,
-      secret: `${variables.apiKey}`,
-      host: `${localUser.messaging_server_map.complete_address}`,
-    });
-    // console.log("client after initializing==>", Client);
-    Client.Register(localUser.ref_id, localUser.authorization_token);
-    Client.on("connect", (res) => {
-      // you can do something after connecting the socket
-      // console.log("**res on connect sdk", res);
-    });
-    // subscribe all channels
-    let grpsToSubscribe = [];
-    allGroups.map((e) => {
-      grpsToSubscribe.push({ key: e.channel_key, channel: e.channel_name });
-    });
-    grpsToSubscribe.map((e) => {
-      Client.Subscribe(e);
-    });
-  }; /*eslint-enable */
+  // /*eslint-disable */
+  // const initializeChatSDK = () => {
+  //   let Client = new MVDOTOK.Client({
+  //     projectID: `${variables.projectID}`,
+  //     secret: `${variables.apiKey}`,
+  //     host: `${localUser.messaging_server_map.complete_address}`,
+  //   });
+  //   // console.log("client after initializing==>", Client);
+  //   Client.Register(localUser.ref_id, localUser.authorization_token);
+  //   Client.on("connect", (res) => {
+  //     // you can do something after connecting the socket
+  //     // console.log("**res on connect sdk", res);
+  //   });
+  //   // subscribe all channels
+  //   let grpsToSubscribe = [];
+  //   allGroups.map((e) => {
+  //     grpsToSubscribe.push({ key: e.channel_key, channel: e.channel_name });
+  //   });
+  //   grpsToSubscribe.map((e) => {
+  //     Client.Subscribe(e);
+  //   });
+  // }; /*eslint-enable */
 
   const handleSubmitMsg = () => {
     setMsgs([...msgs, sendMsg]);
@@ -140,16 +132,21 @@ const Container = ({ setIsLogin }) => {
 
     setText(res.data.random());
   };
+
+  // const addGroup = (element) => {
+
+  // };
+
   console.log(msgs);
   // console.log("groups-->", allGroups);
+  // console.log("current Group===>", currentGroup);
   useEffect(() => {
-    initializeChatSDK();
+    // initializeChatSDK();
     getAllGroups();
     config();
     getquotes();
     // getAllGroups();
   }, [sendMsg]);
-
   return (
     <>
       <Modal
@@ -254,13 +251,8 @@ const Container = ({ setIsLogin }) => {
                         <span
                           className=" cursor-pointer"
                           onClick={() => {
-                            userMsgs(elem);
-                            dispatch(
-                              addChat({
-                                group_name: currentGroup.group_title,
-                                group_id: currentGroup.id,
-                              })
-                            );
+                            setCurrentGroup(elem);
+                            setMsgs([]);
                           }}
                         >
                           {getGroupName(elem)}
@@ -302,7 +294,7 @@ const Container = ({ setIsLogin }) => {
               style={{ height: "calc(100vh - 11rem)" }}
             >
               <div className="flex justify-between">
-                {console.log("msgs----", msgs)}
+                {/* {console.log("msgs----", msgs)} */}
                 {msgs.length === 0 && !currentGroup.group_title ? (
                   <div
                     className="flex justify-center items-center w-full "
@@ -388,7 +380,9 @@ const Container = ({ setIsLogin }) => {
                     }}
                   />
                   <button
-                    onClick={() => handleSubmitMsg()}
+                    onClick={() => {
+                      handleSubmitMsg();
+                    }}
                     className=" bg-sky-500 text-black h-14 w-20 rounded-md border-none outline-none hover:bg-white hover:text-sky-500"
                   >
                     send

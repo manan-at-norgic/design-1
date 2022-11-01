@@ -1,17 +1,22 @@
 // start get all groups
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import Users from "../api/Users";
+import getGroups from "../redux/actions/getGroups";
 import Snackbar from "./snackbar";
 
 // import Users from "../api/Users";
 // import UserCard from "./userCard";
 
-const Modal = ({ userp, toggleModal, getAllGroups }) => {
+const Modal = ({ userp, toggleModal }) => {
   let [users, setUsers] = useState([]);
   let [search, setSearch] = useState("");
   let [selectedUsers, setSelectedUsers] = useState([]);
   let [err, setErr] = useState(``);
   let [groupTitle, setGroupTitle] = useState("");
+
+  //redux
+  const dispatch = useDispatch();
 
   const findString = (e) => {
     let lowered = e.username.toLowerCase(),
@@ -69,7 +74,7 @@ const Modal = ({ userp, toggleModal, getAllGroups }) => {
         setErr(res.data.message);
       }
       console.log("group created --->", res);
-      getAllGroups();
+      dispatch(getGroups());
     } else {
       const data = {
         auth_token: `${token}`,
@@ -81,7 +86,7 @@ const Modal = ({ userp, toggleModal, getAllGroups }) => {
       console.log(data);
       const res = await Users.createGroup(data);
       console.log("group created --->", res);
-      getAllGroups();
+      dispatch(getGroups());
 
       setErr(res.data.message);
       return setTimeout(() => {

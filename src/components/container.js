@@ -7,14 +7,14 @@ import attachment from "../assets/attachment.svg";
 import Modal from "./Modal";
 import Snackbar from "./snackbar";
 import variables from "../api/variables";
-import { useDispatch } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { loggedIn } from "../redux/actions/setLogin";
+import getGroups from "../redux/actions/getGroups";
 
 const Container = () => {
   const [userp, setUserP] = useState([]);
   let [err, setErr] = useState(``);
   const [domainName, setConfig] = useState([]);
-  const [allGroups, setAllGroups] = useState([]);
   let [msgs, setMsgs] = useState([]);
   let [sendMsg, setSendMsg] = useState("");
   let token = localStorage.getItem("auth_token");
@@ -22,13 +22,16 @@ const Container = () => {
   let [text, setText] = useState("");
   let localUser = JSON.parse(localStorage.getItem("user"));
 
+  //redux
+  const { groups } = useSelector(
+    (state) => ({
+      groups: state.groups,
+    }),
+    shallowEqual
+  );
+  console.log(`groups here`, groups.groups);
   const dispatch = useDispatch();
 
-  const getAllGroups = async () => {
-    const allGroupsRes = await Users.allGroups({ auth_token: token });
-    // console.log(`res-> `, allGroupsRes);
-    setAllGroups(allGroupsRes.data.groups);
-  };
   const logout = () => {
     localStorage.clear();
     // setIsLogin(false);
@@ -86,7 +89,7 @@ const Container = () => {
     setTimeout(() => {
       setErr("");
     }, 5000);
-    getAllGroups();
+    dispatch(getGroups());
     // alert(`delete group ---> ${id}`);
   };
   // /*eslint-disable */
@@ -138,22 +141,16 @@ const Container = () => {
   // };
 
   console.log(msgs);
-  // console.log("groups-->", allGroups);
   // console.log("current Group===>", currentGroup);
   useEffect(() => {
     // initializeChatSDK();
-    getAllGroups();
+    dispatch(getGroups());
     config();
     getquotes();
-    // getAllGroups();
   }, [sendMsg]);
   return (
     <>
-      <Modal
-        userp={userp}
-        toggleModal={toggleModal}
-        getAllGroups={getAllGroups}
-      />
+      <Modal userp={userp} toggleModal={toggleModal} />
       <motion.div
         className=" w-full h-screen bg-clr theme-height"
         // initial={{ opacity: 0, y: 0 }}
@@ -240,9 +237,9 @@ const Container = () => {
               className="overflow-scroll scroll-custom"
               style={{ height: "calc(100vh - 120px)" }}
             >
-              {allGroups ? (
+              {groups.groups ? (
                 <>
-                  {allGroups.map((elem, index) => {
+                  {groups.groups.map((elem, index) => {
                     return (
                       <div
                         key={index}

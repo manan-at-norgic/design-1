@@ -4,7 +4,7 @@ import Login from "./components/login/login";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Register from "./components/login/register";
 import { AnimatePresence } from "framer-motion";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { loggedIn } from "./redux/actions/setLogin";
 
 const App = () => {
@@ -13,9 +13,12 @@ const App = () => {
   const location = useLocation();
 
   //redux
-  const { isLogin } = useSelector((state) => ({ isLogin: state.signIn }));
+  const { isLogin } = useSelector(
+    (state) => ({ isLogin: state.signIn }),
+    shallowEqual
+  );
   const dispatch = useDispatch();
-  console.log(isLogin);
+  // console.log(isLogin);
   // end redux
   useEffect(() => {
     document.title = "webrtc by Manan";

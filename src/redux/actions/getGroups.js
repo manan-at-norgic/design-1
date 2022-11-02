@@ -12,7 +12,7 @@ export default () => {
     const allGroupsRes = await Users.allGroups({ auth_token: token });
     console.log(`res-> `, allGroupsRes);
     let data = allGroupsRes.data.groups;
-    console.log("i am data", data);
+    // console.log("i am data", data);
     dispatch(setGroups(data));
   };
 };

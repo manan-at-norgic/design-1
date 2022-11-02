@@ -6,15 +6,14 @@ import Users from "../api/Users";
 import attachment from "../assets/attachment.svg";
 import Modal from "./Modal";
 import Snackbar from "./snackbar";
-import variables from "../api/variables";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { loggedIn } from "../redux/actions/setLogin";
 import getGroups from "../redux/actions/getGroups";
+import { getDomaiName } from "../redux/actions/getConfig";
+import { allUsers } from "../redux/actions/getAllUsers";
 
 const Container = () => {
-  const [userp, setUserP] = useState([]);
   let [err, setErr] = useState(``);
-  const [domainName, setConfig] = useState([]);
   let [msgs, setMsgs] = useState([]);
   let [sendMsg, setSendMsg] = useState("");
   let token = localStorage.getItem("auth_token");
@@ -23,18 +22,18 @@ const Container = () => {
   let localUser = JSON.parse(localStorage.getItem("user"));
 
   //redux
-  const { groups } = useSelector(
+  const { groups, domainName } = useSelector(
     (state) => ({
       groups: state.groups,
+      domainName: state.domainName,
     }),
     shallowEqual
   );
-  console.log(`groups here`, groups.groups);
+  // console.log(useSelector((state) => state));
   const dispatch = useDispatch();
 
   const logout = () => {
     localStorage.clear();
-    // setIsLogin(false);
     dispatch(loggedIn(false));
   };
   const getGroupName = (elem) => {
@@ -46,10 +45,6 @@ const Container = () => {
     let res = splitedNames.filter((item) => item !== localUser.username);
     // console.log("name-----", res);
     return res;
-    // old logic
-    // if (splitedNames[0] !== localUser.username) {
-    //   return splitedNames[0];
-    // }
   };
   const toggleModal = () => {
     let modal = document.querySelectorAll(".createGroup");
@@ -58,25 +53,8 @@ const Container = () => {
     });
     // get users onclick create group
     if (!modal[0].classList.contains("hidden")) {
-      let data = {
-        auth_token: `${token}`,
-      };
-      const getAllUsers = async () => {
-        let res = await Users.getAllUsers(data);
-        setUserP(res.data.users);
-      };
-      getAllUsers();
+      dispatch(allUsers());
     }
-  };
-  const config = async () => {
-    let res = await axios.get("config.json");
-    // console.log(res.data.name);
-    let name = res.data.name;
-    let domainName = [];
-    for (let i = 0; i < name.length; i++) {
-      domainName.push(name[i]);
-    }
-    setConfig(domainName);
   };
   const deleteGroup = async (id) => {
     setErr("");
@@ -136,21 +114,22 @@ const Container = () => {
     setText(res.data.random());
   };
 
-  // const addGroup = (element) => {
-
-  // };
-
-  console.log(msgs);
+  // console.log(msgs);
   // console.log("current Group===>", currentGroup);
   useEffect(() => {
     // initializeChatSDK();
-    dispatch(getGroups());
-    config();
     getquotes();
   }, [sendMsg]);
+  useEffect(() => {
+    dispatch(getGroups());
+    dispatch(getDomaiName());
+    console.log(
+      `hldsjflkdsfsj;akfdsakjskjfdskjkjfdsa;kjlfdsa;lkjlkjfdskjfdskjfdsjs`
+    );
+  }, [dispatch]);
   return (
     <>
-      <Modal userp={userp} toggleModal={toggleModal} />
+      <Modal toggleModal={toggleModal} />
       <motion.div
         className=" w-full h-screen bg-clr theme-height"
         // initial={{ opacity: 0, y: 0 }}
@@ -323,12 +302,6 @@ const Container = () => {
                     })}
                   </div>
                 )}
-                {/* <div className=" w-1/2 m-2">
-                  <SenderMsgs />
-                </div>
-                <div className="m-2 w-1/2 flex flex-col items-end">
-                  <ReciverMsgs />
-                </div> */}
               </div>
             </div>
             {/* chat box end */}

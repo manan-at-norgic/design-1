@@ -1,6 +1,6 @@
 // start get all groups
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Users from "../api/Users";
 import getGroups from "../redux/actions/getGroups";
 import Snackbar from "./snackbar";
@@ -8,14 +8,16 @@ import Snackbar from "./snackbar";
 // import Users from "../api/Users";
 // import UserCard from "./userCard";
 
-const Modal = ({ userp, toggleModal }) => {
-  let [users, setUsers] = useState([]);
+const Modal = ({ toggleModal }) => {
+  // let [users, setUsers] = useState([]);
   let [search, setSearch] = useState("");
   let [selectedUsers, setSelectedUsers] = useState([]);
   let [err, setErr] = useState(``);
   let [groupTitle, setGroupTitle] = useState("");
 
   //redux
+  const { users } = useSelector((state) => ({ users: state.allUsers }));
+  console.log(useSelector((state) => state));
   const dispatch = useDispatch();
 
   const findString = (e) => {
@@ -95,9 +97,6 @@ const Modal = ({ userp, toggleModal }) => {
     }
   };
 
-  useEffect(() => {
-    setUsers(userp);
-  }, [userp]);
   return (
     <>
       <div
@@ -164,41 +163,43 @@ const Modal = ({ userp, toggleModal }) => {
           users card below
           */}
 
-          {users.map((elem, index) => {
-            return (
-              <div
-                key={index}
-                onClick={() => {
-                  getUsers(elem);
-                }}
-              >
-                {findString(elem) === true ? (
-                  <div className="fade-in item__ -white rounded-lg shadow-lg flex items-center justify-center  h-auto my-2">
-                    {/* img container */}
-                    {/* <div className="w-16 h-16 overflow-hidden img-container my-1">
+          {users
+            ? users.map((elem, index) => {
+                return (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      getUsers(elem);
+                    }}
+                  >
+                    {findString(elem) === true ? (
+                      <div className="fade-in item__ -white rounded-lg shadow-lg flex items-center justify-center  h-auto my-2">
+                        {/* img container */}
+                        {/* <div className="w-16 h-16 overflow-hidden img-container my-1">
           <img src={elem.pic} alt="Boat" className="rounded-t-lg" />
         </div> */}
-                    {/* text container */}
-                    <div className=" my-2 mt-3">
-                      <h2 className=" font-semibold text-lg text-clr">
-                        {elem.username}
-                      </h2>
-                    </div>
-                    {/* user status */}&nbsp;&nbsp;
-                    <div
-                      className={`text-4xl text-clr tick-icon hidden  ${elem.username}`}
-                    >
-                      <svg className="animated-check" viewBox="0 0 24 24">
-                        <path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none" />
-                      </svg>
-                    </div>
+                        {/* text container */}
+                        <div className=" my-2 mt-3">
+                          <h2 className=" font-semibold text-lg text-clr">
+                            {elem.username}
+                          </h2>
+                        </div>
+                        {/* user status */}&nbsp;&nbsp;
+                        <div
+                          className={`text-4xl text-clr tick-icon hidden  ${elem.username}`}
+                        >
+                          <svg className="animated-check" viewBox="0 0 24 24">
+                            <path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none" />
+                          </svg>
+                        </div>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
-                ) : (
-                  ""
-                )}
-              </div>
-            );
-          })}
+                );
+              })
+            : ""}
         </div>
         {/* modal gooter */}
         <div className="donee hidden text-lg text-green-500">

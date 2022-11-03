@@ -11,6 +11,7 @@ import { loggedIn } from "../redux/actions/setLogin";
 import getGroups from "../redux/actions/getGroups";
 import { getDomaiName } from "../redux/actions/getConfig";
 import { allUsers } from "../redux/actions/getAllUsers";
+import { getquotes } from "../redux/actions/getQoute";
 
 const Container = () => {
   let [err, setErr] = useState(``);
@@ -22,10 +23,11 @@ const Container = () => {
   let localUser = JSON.parse(localStorage.getItem("user"));
 
   //redux
-  const { groups, domainName } = useSelector(
+  const { groups, domainName, quote } = useSelector(
     (state) => ({
       groups: state.groups,
       domainName: state.domainName,
+      quote: state.quote,
     }),
     shallowEqual
   );
@@ -105,27 +107,24 @@ const Container = () => {
       }, 5000);
     }
   };
-  const getquotes = async () => {
-    let res = await axios.get("https://type.fit/api/quotes");
-    Array.prototype.random = function random() {
-      return this[Math.floor(Math.random() * this.length)];
-    };
+  // const getquotes = async () => {
+  //   let res = await axios.get("https://type.fit/api/quotes");
+  //   Array.prototype.random = function random() {
+  //     return this[Math.floor(Math.random() * this.length)];
+  //   };
 
-    setText(res.data.random());
-  };
+  //   setText(res.data.random());
+  // };
 
   // console.log(msgs);
   // console.log("current Group===>", currentGroup);
   useEffect(() => {
-    // initializeChatSDK();
-    getquotes();
-  }, [sendMsg]);
+    dispatch(getquotes());
+    console.log("i am quoreasfdasdfsadfsadfasdfsadfas");
+  }, []);
   useEffect(() => {
     dispatch(getGroups());
     dispatch(getDomaiName());
-    console.log(
-      `hldsjflkdsfsj;akfdsakjskjfdskjkjfdsa;kjlfdsa;lkjlkjfdskjfdskjfdsjs`
-    );
   }, [dispatch]);
   return (
     <>
@@ -285,7 +284,7 @@ const Container = () => {
                         }
                       }
                     >
-                      {text.text}
+                      {quote.text !== null ? quote.text : ""}
                     </div>
                   </div>
                 ) : (

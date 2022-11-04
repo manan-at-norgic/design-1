@@ -4,6 +4,7 @@ import signIn from "./signIn";
 import config from "./configs";
 import allUsers from "./allUsers";
 import quotesReducer from "./quotesReducer";
+import messageReducer from "./messageReducer";
 
 export default combineReducers({
   signIn: signIn,
@@ -11,4 +12,5 @@ export default combineReducers({
   domainName: config,
   allUsers: allUsers,
   quote: quotesReducer,
+  messageBox: messageReducer,
 });

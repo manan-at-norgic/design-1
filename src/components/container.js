@@ -12,14 +12,14 @@ import getGroups from "../redux/actions/getGroups";
 import { getDomaiName } from "../redux/actions/getConfig";
 import { allUsers } from "../redux/actions/getAllUsers";
 import { getquotes } from "../redux/actions/getQoute";
+import { select_current_group } from "../redux/actions/selectCurrentGroup";
+import { select_messages } from "../redux/actions/messageAction";
 
 const Container = () => {
   let [err, setErr] = useState(``);
   let [msgs, setMsgs] = useState([]);
   let [sendMsg, setSendMsg] = useState("");
-  let token = localStorage.getItem("auth_token");
   const [currentGroup, setCurrentGroup] = useState({});
-  let [text, setText] = useState("");
   let localUser = JSON.parse(localStorage.getItem("user"));
 
   //redux
@@ -107,21 +107,14 @@ const Container = () => {
       }, 5000);
     }
   };
-  // const getquotes = async () => {
-  //   let res = await axios.get("https://type.fit/api/quotes");
-  //   Array.prototype.random = function random() {
-  //     return this[Math.floor(Math.random() * this.length)];
-  //   };
 
-  //   setText(res.data.random());
-  // };
-
-  // console.log(msgs);
-  // console.log("current Group===>", currentGroup);
   useEffect(() => {
     dispatch(getquotes());
     console.log("i am quoreasfdasdfsadfsadfasdfsadfas");
   }, []);
+  useEffect(() => {
+    dispatch(select_messages([...msgs]));
+  }, [msgs]);
   useEffect(() => {
     dispatch(getGroups());
     dispatch(getDomaiName());
@@ -227,6 +220,7 @@ const Container = () => {
                           className=" cursor-pointer"
                           onClick={() => {
                             setCurrentGroup(elem);
+                            dispatch(select_current_group(elem.channel_key));
                             setMsgs([]);
                           }}
                         >

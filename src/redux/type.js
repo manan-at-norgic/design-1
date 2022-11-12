@@ -6,3 +6,4 @@ export const GET_QOUTES = "GET_QOUTES";
 export const CURRENT_GROUP = "CURRENT_GROUP";
 export const MESSAGE__ = "MESSAGE__";
 export const ALL_MSGS = "ALL_MSGS";
+export const MSG_AGAINST_KEY = "MSG_AGAINST_KEY";

@@ -14,6 +14,8 @@ import { allUsers } from "../redux/actions/getAllUsers";
 import { getquotes } from "../redux/actions/getQoute";
 import { select_current_group } from "../redux/actions/selectCurrentGroup";
 import { select_messages } from "../redux/actions/messageAction";
+import allMessagesAction from "../redux/actions/allMessagesAction";
+import msgAgainstKeyAction from "../redux/actions/msgAgainstKeyAction";
 
 const Container = () => {
   let [err, setErr] = useState(``);
@@ -23,16 +25,29 @@ const Container = () => {
   let localUser = JSON.parse(localStorage.getItem("user"));
 
   //redux
-  const { groups, domainName, quote } = useSelector(
-    (state) => ({
-      groups: state.groups,
-      domainName: state.domainName,
-      quote: state.quote,
-    }),
-    shallowEqual
-  );
+  const { groups, domainName, quote, groupName, groupMsgs, allMsgs } =
+    useSelector(
+      (state) => ({
+        groups: state.groups,
+        domainName: state.domainName,
+        quote: state.quote,
+        groupName: state.messageBox.currentGroup,
+        groupMsgs: state.messageBox.messages,
+        allMsgs: state.messageBox.allMsgs,
+      }),
+      shallowEqual
+    );
   // console.log(useSelector((state) => state));
   const dispatch = useDispatch();
+
+  // const checkDuplication = () => {
+  //   if (allMsgs.length !== 0) {
+  //     allMsgs.map((elem,idx) => {
+  //       console.log(Object.keys(), "elem key");
+  //     });
+  //   }
+  // };
+  // checkDuplication();
 
   const logout = () => {
     localStorage.clear();
@@ -114,7 +129,32 @@ const Container = () => {
   }, []);
   useEffect(() => {
     dispatch(select_messages([...msgs]));
+    console.log(`msgs herweee`, msgs);
   }, [msgs]);
+  useEffect(() => {
+    if (allMsgs.length !== 0) {
+      const check = () => {
+        for (let i = 0; i < allMsgs.length; i++) {
+          // console.log(allMsgs[i]);
+          let haskey = allMsgs[i].hasOwnProperty(groupName);
+          // console.warn(haskey);
+          if (haskey) return { haskey, idx: i };
+        }
+      };
+
+      let verifiy = check();
+      console.warn("i am verified", verifiy);
+      {
+        verifiy !== undefined && verifiy.haskey === true
+          ? dispatch(msgAgainstKeyAction({ groupName, addMessages: msgs }))
+          : dispatch(allMessagesAction({ [groupName]: msgs }));
+      }
+    } else {
+      if (msgs.length !== 0 && groupName.length !== 0) {
+        dispatch(allMessagesAction({ [groupName]: msgs }));
+      }
+    }
+  }, [msgs, groupName]);
   useEffect(() => {
     dispatch(getGroups());
     dispatch(getDomaiName());
@@ -219,9 +259,32 @@ const Container = () => {
                         <span
                           className=" cursor-pointer"
                           onClick={() => {
+                            const check = () => {
+                              for (let i = 0; i < allMsgs.length; i++) {
+                                console.log(allMsgs[i]);
+                                let haskey = allMsgs[i].hasOwnProperty(
+                                  elem.channel_key
+                                );
+                                // console.warn(haskey);
+                                if (haskey) return { haskey, idx: i };
+                              }
+                            };
+                            let haskey = check();
+                            console.warn(haskey);
+                            if (
+                              haskey !== undefined &&
+                              haskey.haskey === true
+                            ) {
+                              let d = Object.values(allMsgs[haskey.idx]);
+                              let f = d[0];
+                              // setMsgs(null);
+                              setMsgs([...f]);
+                              console.warn("i am d ", f, "msgfs", msgs);
+                            } else {
+                              setMsgs([]);
+                            }
                             setCurrentGroup(elem);
                             dispatch(select_current_group(elem.channel_key));
-                            setMsgs([]);
                           }}
                         >
                           {getGroupName(elem)}

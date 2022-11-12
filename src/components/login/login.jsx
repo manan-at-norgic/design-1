@@ -6,6 +6,8 @@ import Users from "../../api/Users";
 import variables from "../../api/variables";
 import Snackbar from "../snackbar";
 import "../../sass/login.css";
+import { shallowEqual, useDispatch } from "react-redux";
+import { loggedIn } from "../../redux/actions/setLogin";
 
 const animations = {
   initial: { opacity: 0, x: 100 },
@@ -13,8 +15,8 @@ const animations = {
   exit: { opacity: 0, x: -100 },
 };
 
-const Login = ({ setIsLogin }) => {
-  //
+const Login = () => {
+  // states
   const [err, setErr] = useState(``);
   const [user, setUser] = useState({
     email: "",
@@ -23,6 +25,12 @@ const Login = ({ setIsLogin }) => {
   });
   const [a, seta] = useState(false);
   const navigate = useNavigate();
+
+  // redux variables
+
+  // redux methods
+  const dispatch = useDispatch();
+  // end redux methods
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,12 +50,15 @@ const Login = ({ setIsLogin }) => {
     if (res.data.ref_id) {
       localStorage.setItem("user", JSON.stringify(res.data));
       localStorage.setItem("auth_token", res.data.auth_token);
+      dispatch(loggedIn(true));
       seta(true);
-      setIsLogin(true);
+      // setIsLogin(true);
+      dispatch(loggedIn(true));
       // return navigate("/");
     } else {
       setErr(res.data.message);
-      setIsLogin(false);
+      // setIsLogin(false);
+      dispatch(loggedIn(false));
       seta(false);
       return setTimeout(() => {
         setErr("");

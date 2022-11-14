@@ -11,26 +11,43 @@ import { loggedIn } from "../redux/actions/setLogin";
 import getGroups from "../redux/actions/getGroups";
 import { getDomaiName } from "../redux/actions/getConfig";
 import { allUsers } from "../redux/actions/getAllUsers";
+import { getquotes } from "../redux/actions/getQoute";
+import { select_current_group } from "../redux/actions/selectCurrentGroup";
+import { select_messages } from "../redux/actions/messageAction";
+import allMessagesAction from "../redux/actions/allMessagesAction";
+import msgAgainstKeyAction from "../redux/actions/msgAgainstKeyAction";
 
 const Container = () => {
   let [err, setErr] = useState(``);
   let [msgs, setMsgs] = useState([]);
   let [sendMsg, setSendMsg] = useState("");
-  let token = localStorage.getItem("auth_token");
   const [currentGroup, setCurrentGroup] = useState({});
-  let [text, setText] = useState("");
   let localUser = JSON.parse(localStorage.getItem("user"));
 
   //redux
-  const { groups, domainName } = useSelector(
-    (state) => ({
-      groups: state.groups,
-      domainName: state.domainName,
-    }),
-    shallowEqual
-  );
+  const { groups, domainName, quote, groupName, groupMsgs, allMsgs } =
+    useSelector(
+      (state) => ({
+        groups: state.groups,
+        domainName: state.domainName,
+        quote: state.quote,
+        groupName: state.messageBox.currentGroup,
+        groupMsgs: state.messageBox.messages,
+        allMsgs: state.messageBox.allMsgs,
+      }),
+      shallowEqual
+    );
   // console.log(useSelector((state) => state));
   const dispatch = useDispatch();
+
+  // const checkDuplication = () => {
+  //   if (allMsgs.length !== 0) {
+  //     allMsgs.map((elem,idx) => {
+  //       console.log(Object.keys(), "elem key");
+  //     });
+  //   }
+  // };
+  // checkDuplication();
 
   const logout = () => {
     localStorage.clear();
@@ -105,27 +122,42 @@ const Container = () => {
       }, 5000);
     }
   };
-  const getquotes = async () => {
-    let res = await axios.get("https://type.fit/api/quotes");
-    Array.prototype.random = function random() {
-      return this[Math.floor(Math.random() * this.length)];
-    };
 
-    setText(res.data.random());
-  };
-
-  // console.log(msgs);
-  // console.log("current Group===>", currentGroup);
   useEffect(() => {
-    // initializeChatSDK();
-    getquotes();
-  }, [sendMsg]);
+    dispatch(getquotes());
+    console.log("i am quoreasfdasdfsadfsadfasdfsadfas");
+  }, []);
+  useEffect(() => {
+    dispatch(select_messages([...msgs]));
+    console.log(`msgs herweee`, msgs);
+  }, [msgs]);
+  useEffect(() => {
+    if (allMsgs.length !== 0) {
+      const check = () => {
+        for (let i = 0; i < allMsgs.length; i++) {
+          // console.log(allMsgs[i]);
+          let haskey = allMsgs[i].hasOwnProperty(groupName);
+          // console.warn(haskey);
+          if (haskey) return { haskey, idx: i };
+        }
+      };
+
+      let verifiy = check();
+      console.warn("i am verified", verifiy);
+      {
+        verifiy !== undefined && verifiy.haskey === true
+          ? dispatch(msgAgainstKeyAction({ groupName, addMessages: msgs }))
+          : dispatch(allMessagesAction({ [groupName]: msgs }));
+      }
+    } else {
+      if (msgs.length !== 0 && groupName.length !== 0) {
+        dispatch(allMessagesAction({ [groupName]: msgs }));
+      }
+    }
+  }, [msgs, groupName]);
   useEffect(() => {
     dispatch(getGroups());
     dispatch(getDomaiName());
-    console.log(
-      `hldsjflkdsfsj;akfdsakjskjfdskjkjfdsa;kjlfdsa;lkjlkjfdskjfdskjfdsjs`
-    );
   }, [dispatch]);
   return (
     <>
@@ -227,8 +259,32 @@ const Container = () => {
                         <span
                           className=" cursor-pointer"
                           onClick={() => {
+                            const check = () => {
+                              for (let i = 0; i < allMsgs.length; i++) {
+                                console.log(allMsgs[i]);
+                                let haskey = allMsgs[i].hasOwnProperty(
+                                  elem.channel_key
+                                );
+                                // console.warn(haskey);
+                                if (haskey) return { haskey, idx: i };
+                              }
+                            };
+                            let haskey = check();
+                            console.warn(haskey);
+                            if (
+                              haskey !== undefined &&
+                              haskey.haskey === true
+                            ) {
+                              let d = Object.values(allMsgs[haskey.idx]);
+                              let f = d[0];
+                              // setMsgs(null);
+                              setMsgs([...f]);
+                              console.warn("i am d ", f, "msgfs", msgs);
+                            } else {
+                              setMsgs([]);
+                            }
                             setCurrentGroup(elem);
-                            setMsgs([]);
+                            dispatch(select_current_group(elem.channel_key));
                           }}
                         >
                           {getGroupName(elem)}
@@ -285,7 +341,7 @@ const Container = () => {
                         }
                       }
                     >
-                      {text.text}
+                      {quote.text !== null ? quote.text : ""}
                     </div>
                   </div>
                 ) : (

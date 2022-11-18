@@ -17,7 +17,6 @@ const Modal = ({ toggleModal }) => {
 
   //redux
   const { users } = useSelector((state) => ({ users: state.allUsers }));
-  console.log(useSelector((state) => state));
   const dispatch = useDispatch();
 
   const findString = (e) => {

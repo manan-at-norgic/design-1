@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -16,28 +15,32 @@ import { select_current_group } from "../redux/actions/selectCurrentGroup";
 import { select_messages } from "../redux/actions/messageAction";
 import allMessagesAction from "../redux/actions/allMessagesAction";
 import msgAgainstKeyAction from "../redux/actions/msgAgainstKeyAction";
+import variables from "../api/variables";
 
 const Container = () => {
   let [err, setErr] = useState(``);
   let [msgs, setMsgs] = useState([]);
   let [sendMsg, setSendMsg] = useState("");
   const [currentGroup, setCurrentGroup] = useState({});
+  const [myClient, setMyClient] = useState();
+  const [recivedMsg, setRecivedMsg] = useState();
   let localUser = JSON.parse(localStorage.getItem("user"));
 
   //redux
-  const { groups, domainName, quote, groupName, groupMsgs, allMsgs } =
+  const { groups, domainName, quote, groupName, cGroup, groupMsgs, allMsgs } =
     useSelector(
       (state) => ({
         groups: state.groups,
         domainName: state.domainName,
         quote: state.quote,
-        groupName: state.messageBox.currentGroup,
+        groupName: state.messageBox.currentGroup.channel_key,
+        cGroup: state.messageBox.currentGroup,
         groupMsgs: state.messageBox.messages,
         allMsgs: state.messageBox.allMsgs,
       }),
       shallowEqual
     );
-  // console.log(useSelector((state) => state));
+
   const dispatch = useDispatch();
 
   // const checkDuplication = () => {
@@ -87,46 +90,106 @@ const Container = () => {
     dispatch(getGroups());
     // alert(`delete group ---> ${id}`);
   };
-  // /*eslint-disable */
-  // const initializeChatSDK = () => {
-  //   let Client = new MVDOTOK.Client({
-  //     projectID: `${variables.projectID}`,
-  //     secret: `${variables.apiKey}`,
-  //     host: `${localUser.messaging_server_map.complete_address}`,
-  //   });
-  //   // console.log("client after initializing==>", Client);
-  //   Client.Register(localUser.ref_id, localUser.authorization_token);
-  //   Client.on("connect", (res) => {
-  //     // you can do something after connecting the socket
-  //     // console.log("**res on connect sdk", res);
-  //   });
-  //   // subscribe all channels
-  //   let grpsToSubscribe = [];
-  //   allGroups.map((e) => {
-  //     grpsToSubscribe.push({ key: e.channel_key, channel: e.channel_name });
-  //   });
-  //   grpsToSubscribe.map((e) => {
-  //     Client.Subscribe(e);
-  //   });
-  // }; /*eslint-enable */
+  /*eslint-disable */
+  const initializeChatSDK = () => {
+    if (localUser) {
+      let Client = new MVDOTOK.Client({
+        projectID: `${variables.projectID}`,
+        secret: `${variables.apiKey}`,
+        host: `${localUser.messaging_server_map.complete_address}`,
+      });
+      setMyClient(Client);
+      // console.log("client after initializing==>", Client);
+      Client.Register(localUser.ref_id, localUser.authorization_token);
+      Client.on("connect", (res) => {
+        // you can do something after connecting the socket
+        // console.log("**res on connect sdk", res);
+      });
+      Client.on("subscribed", (response) => {
+        console.log("**res on subscribe  ", response);
+      });
+      Client.on("message", (res) => {
+        console.log(res, "------res heres mesaage");
+        setRecivedMsg(res);
+      });
+    }
+  }; /*eslint-enable */
 
   const handleSubmitMsg = () => {
-    setMsgs([...msgs, sendMsg]);
+    if (!/\S/.test(sendMsg) !== true) {
+      /// firstly setmsgs from input level scope
 
-    setSendMsg("");
-
-    if (sendMsg === "") {
+      let idd = new Date().getTime().toString();
+      let payload = {
+        status: 1,
+        size: 0,
+        type: "text",
+        from: localUser.ref_id,
+        content: sendMsg.trim(),
+        id: idd,
+        date: new Date().getTime(),
+        key: cGroup.channel_key,
+        to: cGroup.channel_name,
+      };
+      myClient.SendMessage(payload);
+    } else {
       setErr("plz type msgs to send");
       setTimeout(() => {
         setErr("");
       }, 5000);
     }
+
+    setSendMsg("");
+  };
+
+  const displayCurrentMsgs = (elem) => {
+    const check = () => {
+      for (let i = 0; i < allMsgs.length; i++) {
+        // console.log(allMsgs[i]);
+        let haskey = allMsgs[i].hasOwnProperty(elem.channel_key);
+        // console.warn(haskey);
+        if (haskey) return { haskey, idx: i };
+      }
+    };
+    let haskey = check();
+    console.warn(haskey);
+    if (haskey !== undefined && haskey.haskey === true) {
+      let d = Object.values(allMsgs[haskey.idx]);
+      let f = d[0];
+      // setMsgs(null);
+      setMsgs([...f]);
+      console.warn("i am d ", f, "msgfs", msgs);
+    }
+    // else {
+    //   setMsgs([]);
+    // }
   };
 
   useEffect(() => {
     dispatch(getquotes());
-    console.log("i am quoreasfdasdfsadfsadfasdfsadfas");
-  }, []);
+    dispatch(getGroups());
+    dispatch(getDomaiName());
+    initializeChatSDK();
+  }, [dispatch]);
+
+  // subscribe all channels
+  useEffect(() => {
+    if (
+      groups.groups !== undefined &&
+      groups.groups.length !== 0 &&
+      myClient !== undefined
+    ) {
+      let grpsToSubscribe = [];
+      groups.groups.map((e) => {
+        grpsToSubscribe.push({ key: e.channel_key, channel: e.channel_name });
+      });
+      grpsToSubscribe.map((e) => {
+        myClient.Subscribe(e);
+      });
+    }
+  }, [groups]);
+
+  // msgs action redux
   useEffect(() => {
     dispatch(select_messages([...msgs]));
     console.log(`msgs herweee`, msgs);
@@ -150,15 +213,27 @@ const Container = () => {
           : dispatch(allMessagesAction({ [groupName]: msgs }));
       }
     } else {
-      if (msgs.length !== 0 && groupName.length !== 0) {
-        dispatch(allMessagesAction({ [groupName]: msgs }));
+      //  set a check heree to match channel_key for both msgs sender and current group
+      // console.warn(currentGroup.channel_key);
+      if (
+        groupMsgs.length !== 0 &&
+        groupName &&
+        recivedMsg !== undefined &&
+        currentGroup &&
+        currentGroup.channel_key === recivedMsg.key
+      ) {
+        dispatch(allMessagesAction({ [groupName]: groupMsgs }));
+        dispatch(select_messages([]));
+        setMsgs([]);
       }
     }
-  }, [msgs, groupName]);
-  useEffect(() => {
-    dispatch(getGroups());
-    dispatch(getDomaiName());
-  }, [dispatch]);
+
+    if (recivedMsg !== undefined && recivedMsg.content !== "") {
+      setMsgs([...msgs, recivedMsg.content]);
+    }
+    setRecivedMsg(undefined);
+  }, [msgs, groupName, recivedMsg]);
+
   return (
     <>
       <Modal toggleModal={toggleModal} />
@@ -259,32 +334,9 @@ const Container = () => {
                         <span
                           className=" cursor-pointer"
                           onClick={() => {
-                            const check = () => {
-                              for (let i = 0; i < allMsgs.length; i++) {
-                                console.log(allMsgs[i]);
-                                let haskey = allMsgs[i].hasOwnProperty(
-                                  elem.channel_key
-                                );
-                                // console.warn(haskey);
-                                if (haskey) return { haskey, idx: i };
-                              }
-                            };
-                            let haskey = check();
-                            console.warn(haskey);
-                            if (
-                              haskey !== undefined &&
-                              haskey.haskey === true
-                            ) {
-                              let d = Object.values(allMsgs[haskey.idx]);
-                              let f = d[0];
-                              // setMsgs(null);
-                              setMsgs([...f]);
-                              console.warn("i am d ", f, "msgfs", msgs);
-                            } else {
-                              setMsgs([]);
-                            }
+                            displayCurrentMsgs(elem);
                             setCurrentGroup(elem);
-                            dispatch(select_current_group(elem.channel_key));
+                            dispatch(select_current_group(elem));
                           }}
                         >
                           {getGroupName(elem)}
@@ -312,7 +364,7 @@ const Container = () => {
           >
             {/* fixed header */}
             {currentGroup.group_title ? (
-              <div className="w-full text-center zoomIn capitalize shadow-md cursor-pointer -white font-bold p-2">
+              <div className="w-full text-center zoomIn capitalize shadow-md cursor-auto -white font-bold p-2">
                 {getGroupName(currentGroup)}
               </div>
             ) : (
@@ -327,7 +379,7 @@ const Container = () => {
             >
               <div className="flex justify-between">
                 {/* {console.log("msgs----", msgs)} */}
-                {msgs.length === 0 && !currentGroup.group_title ? (
+                {allMsgs.length === 0 && !currentGroup.group_title ? (
                   <div
                     className="flex justify-center items-center w-full "
                     style={{ height: "75vh" }}
